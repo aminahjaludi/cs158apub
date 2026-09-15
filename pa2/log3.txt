@@ -1,0 +1,9 @@
+Started with uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9
+Sent: uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9, flag=0
+Received: uuid=3dde13c4-e675-4648-9cba-ef97da10530d, flag=0, less, state=0
+Ignored message
+Received: uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9, flag=0, same, state=0
+Leader is decided to d68eb41e-97c4-4859-a4c3-3901297e96c9
+Sent: uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9, flag=1
+Received: uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9, flag=1, same, state=1
+Leader is decided to d68eb41e-97c4-4859-a4c3-3901297e96c9

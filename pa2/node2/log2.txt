@@ -1,8 +1,0 @@
-Started with uuid=534a3701-3fa7-4458-91de-d9ff89b66a20
-Sent: uuid=534a3701-3fa7-4458-91de-d9ff89b66a20, flag=0
-Received: uuid=875a3b3b-b035-4f92-8087-3338166d2372, flag=0, greater, state=0
-Sent: uuid=875a3b3b-b035-4f92-8087-3338166d2372, flag=0
-Received: uuid=b5d39678-479e-46aa-b2dd-5bb80c4296d8, flag=0, greater, state=0
-Sent: uuid=b5d39678-479e-46aa-b2dd-5bb80c4296d8, flag=0
-Received: uuid=b5d39678-479e-46aa-b2dd-5bb80c4296d8, flag=1, greater, state=0
-Sent: uuid=b5d39678-479e-46aa-b2dd-5bb80c4296d8, flag=1

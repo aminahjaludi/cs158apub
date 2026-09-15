@@ -107,7 +107,7 @@ def main():
 
     write_log(log_file, f"Started with uuid={process_uuid}") #update log
 
-    connections = {} #dictionary to hold sockets
+    connections = {} # dictionary to hold sockets
     ready = threading.Event() # for communication between threads
 
     # the server runs in another thread because accept() blocks
@@ -119,18 +119,18 @@ def main():
 
     server_thread.start()
 
-    input("Press Enter when everyone is ready.")
+    input("Press Enter when everyone is ready.\n")
 
     time.sleep(1)
 
     # connect to the next node in the ring [client portion]
     outgoing = connect_to_next_node(client_host, client_port)
 
-    # Wait until server accepted the previous node
+    # wait until server accepted the previous node
     ready.wait()
     incoming = connections["incoming"]
 
-    # Send this process's uuid when it starts the election
+    # send this process's uuid when it starts the election
     first_message = Message(process_uuid, 0)
     outgoing.sendall(first_message.to_json().encode())
 
@@ -139,77 +139,99 @@ def main():
         f"Sent: uuid={first_message.uuid}, flag={first_message.flag}"
     )
 
-    while True:
+    message_buffer = ""
+    done = False
+    while  not done:
         data = incoming.recv(BUFFER_SIZE)
 
         if not data:
             break
 
-        message = Message.from_json(data.decode())
+        message_buffer = message_buffer + data.decode()
 
-        if message.uuid > process_uuid:
-            comparison = "greater"
-        elif message.uuid == process_uuid:
-            comparison = "same"
-        else:
-            comparison = "less"
+        # use a while loop instead of an if statement incase the buffer contains multiple messages
+        while "}" in message_buffer and not done:
 
-        write_log(
-            log_file,
-            f"Received: uuid={message.uuid}, "
-            f"flag={message.flag}, "
-            f"{comparison}, "
-            f"state={state}"
-        )
+            # find the first }
+            bracket_pos = message_buffer.find("}") + 1
 
-        if message.flag == 1: # incoming message specifies leader
-            state = 1
-            # record leader
-            leader_id = message.uuid
+            # separate the first message (if there's multiple)
+            message_text = message_buffer[:bracket_pos]
 
-            if message.uuid == process_uuid: # i am the leader
-                # we're done
-                break
+            # update the buffer so a potential 2nd message can be processed in this loop
+            message_buffer = message_buffer[bracket_pos:]
 
-            # i am not the leader, forward the leader message to next node
-            outgoing.sendall(message.to_json().encode())
+            message = Message.from_json(message_text)
+
+            if message.uuid > process_uuid:
+                comparison = "greater"
+            elif message.uuid == process_uuid:
+                comparison = "same"
+            else:
+                comparison = "less"
 
             write_log(
                 log_file,
-                f"Sent: uuid={message.uuid}, flag={message.flag}"
+                f"Received: uuid={message.uuid}, "
+                f"flag={message.flag}, "
+                f"{comparison}, "
+                f"state={state}"
             )
 
-        elif message.uuid > process_uuid: # potential leader, forward message
-            # Forward larger UUIDs.
-            outgoing.sendall(message.to_json().encode())
+            if message.flag == 1: # incoming message specifies leader
+                state = 1
+                # record leader
+                leader_id = message.uuid
 
-            write_log(
-                log_file,
-                f"Sent: uuid={message.uuid}, flag={message.flag}"
-            )
+                write_log(
+                    log_file,
+                    f"Leader is decided to {leader_id}"
+                )
 
-        elif message.uuid == process_uuid: # i am the leader
-            # record myself as leader
-            state = 1
-            leader_id = process_uuid
+                if message.uuid == process_uuid: # i am the leader
+                    # we're done
+                    done = True
+                else:
+                    # i am not the leader, forward the leader message to next node
+                    outgoing.sendall(message.to_json().encode())
 
-            write_log(
-                log_file,
-                f"Leader is decided to {leader_id}"
-            )
+                    write_log(
+                        log_file,
+                        f"Sent: uuid={message.uuid}, flag={message.flag}"
+                    )
+                    done = True
 
-            # send leader message
-            leader_message = Message(process_uuid, 1)
-            outgoing.sendall(leader_message.to_json().encode())
+            elif message.uuid > process_uuid: # potential leader, forward message
+                # forward larger UUIDs
+                outgoing.sendall(message.to_json().encode())
 
-            write_log(
-                log_file,
-                f"Sent: uuid={leader_message.uuid}, flag={leader_message.flag}"
-            )
+                write_log(
+                    log_file,
+                    f"Sent: uuid={message.uuid}, flag={message.flag}"
+                )
 
-        else:
-            # Ignore smaller UUIDs.
-            write_log(log_file, "Ignored message")
+            elif message.uuid == process_uuid: # i am the leader
+                # record myself as leader
+                state = 1
+                leader_id = process_uuid
+
+                write_log(
+                    log_file,
+                    f"Leader is decided to {leader_id}"
+                )
+
+                # send leader message
+                leader_message = Message(process_uuid, 1)
+                outgoing.sendall(leader_message.to_json().encode())
+
+                write_log(
+                    log_file,
+                    f"Sent: uuid={leader_message.uuid}, flag={leader_message.flag}"
+                )
+
+            else:
+                # Ignore smaller UUIDs.
+                write_log(log_file, "Ignored message")
 
     print(f"leader is {leader_id}")
     log_file.close()

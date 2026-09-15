@@ -1,0 +1,7 @@
+Started with uuid=11a40d9c-3170-46a9-98d2-0ca683c06467
+Sent: uuid=11a40d9c-3170-46a9-98d2-0ca683c06467, flag=0
+Received: uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9, flag=0, greater, state=0
+Sent: uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9, flag=0
+Received: uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9, flag=1, greater, state=0
+Leader is decided to d68eb41e-97c4-4859-a4c3-3901297e96c9
+Sent: uuid=d68eb41e-97c4-4859-a4c3-3901297e96c9, flag=1
